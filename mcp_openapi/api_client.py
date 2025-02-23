@@ -1,60 +1,55 @@
-from typing import TypedDict
+from typing import Any
 from aiohttp import ClientSession
 import openapi_parser.specification as openapi_spec
 
 from http import HTTPMethod
 
-
-class RegisteredRequest(TypedDict):
-    method: HTTPMethod
-    path: str
-    op: openapi_spec.Operation
+import yarl
 
 
 class APIClient:
-    requests: dict[str, RegisteredRequest]
+    """
+    Handles the making of API requests based on an OpenAPI spec.
 
-    def __init__(self, base_url: str):
-        self.session = ClientSession(base_url=base_url)
-        self.requests = {}
+    TODO: Introduce authentication here.
 
-    def add_request(
-        self, name: str, method: HTTPMethod, path: str, op: openapi_spec.Operation
+    """
+
+    spec: openapi_spec.Specification
+    base_url: yarl.URL
+    session: ClientSession
+
+    def __init__(self, spec: openapi_spec.Specification, spec_url: str):
+        self.spec = spec
+
+        self.base_url = extract_base_url(spec, spec_url)
+        self.session = ClientSession(base_url=str(self.base_url))
+
+    async def call(
+        self,
+        method: HTTPMethod,
+        path: str,
+        query_params: dict[str, Any],
+        body: dict[str, Any],
     ):
-        self.requests[name] = {
-            "method": method,
-            "path": path,
-            "op": op,
-        }
-
-    async def call(self, name: str, **kwargs):
-        request = self.requests[name]
-
-        path_params = {}
-        query_params = {}
-        body_params = {}
-
-        for param in request["op"].parameters:
-            if param.name not in kwargs:
-                continue
-
-            if "{" + param.name + "}" in request["path"]:
-                path_params[param.name] = kwargs[param.name]
-            else:
-                query_params[param.name] = kwargs[param.name]
-
-            if param.name in kwargs:
-                path_params[param.name] = kwargs[param.name]
-
-        if request["op"].request_body:
-            for content in request["op"].request_body.content:
-                if isinstance(content.schema, openapi_spec.Object):
-                    for prop in content.schema.properties:
-                        body_params[prop.name] = kwargs[prop.name]
-
-        path = request["path"].format(**path_params)
-
         async with self.session.request(
-            request["method"].value, path, params=query_params, json=body_params
+            method, path, params=query_params, json=body
         ) as response:
+            # TODO: Provide some information about the response for non-2xx
             return await response.text()
+
+
+def extract_base_url(spec: openapi_spec.Specification, spec_url: str) -> yarl.URL:
+    # Get first server URL
+    # TODO: Allow this to be overridden by a CLI arg
+    if not spec.servers:
+        raise ValueError("No servers found in OpenAPI spec")
+
+    server_url = yarl.URL(spec.servers[0].url)
+    if not server_url.is_absolute():
+        # TODO: test this jank
+        # Base URL, if the spec server URL is relative
+        base_url = yarl.URL(spec_url)
+        server_url = base_url.join(server_url)
+
+    return server_url
