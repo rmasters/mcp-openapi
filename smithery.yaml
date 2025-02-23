@@ -1,0 +1,33 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - openapiUrl
+    properties:
+      openapiUrl:
+        type: string
+        description: The OpenAPI specification URL the server will expose as tools.
+      fastmcpSseHost:
+        type: string
+        default: localhost
+        description: The host to serve the MCP server on (SSE mode only).
+      fastmcpSsePort:
+        type: number
+        default: 8000
+        description: The port to serve the MCP server on (SSE mode only).
+      fastmcpDebug:
+        type: boolean
+        default: false
+        description: Enable debug mode for the MCP server.
+      fastmcpLogLevel:
+        type: string
+        default: INFO
+        description: The log level for the MCP server.
+  commandFunction:
+    # A function that produces the CLI command to start the MCP on stdio.
+    |-
+    config => ({command: 'mcp-openapi', args: [`--openapi-url=${config.openapiUrl}`, 'stdio'], env: { FASTMCP_SSE_HOST: config.fastmcpSseHost, FASTMCP_SSE_PORT: config.fastmcpSsePort, FASTMCP_DEBUG: config.fastmcpDebug ? '1' : '0', FASTMCP_LOG_LEVEL: config.fastmcpLogLevel } })
