@@ -41,11 +41,12 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: pyproject.toml
+          python-version-file: pyproject.toml
       - uses: astral-sh/setup-uv@v3
       - run: uv sync --dev
       - name: Run pytest
