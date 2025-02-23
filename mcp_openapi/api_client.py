@@ -35,6 +35,7 @@ class APIClient:
         async with self.session.request(
             method, path, params=query_params, json=body
         ) as response:
+            # TODO: Provide some information about the response for non-2xx
             return await response.text()
 
 

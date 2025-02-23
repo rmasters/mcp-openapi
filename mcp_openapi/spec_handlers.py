@@ -41,6 +41,7 @@ class OpenAPISpecHandler:
         self.logger = logging.getLogger(__name__)
 
     async def list_tools(self) -> ServerResult:
+        # TODO: Do more of this at server startup, rather than at runtime
         tools: list[Tool] = []
 
         # Register each path operation as a tool
@@ -63,6 +64,7 @@ class OpenAPISpecHandler:
             # Add path parameters to the input schema
             for param in op.parameters:
                 if param.name in input_schema:
+                    # TODO: Log this, and validate on server startup
                     raise ValueError(f"Duplicate parameter name: {param.name}")
 
                 self.logger.debug(
@@ -127,6 +129,7 @@ class OpenAPISpecHandler:
 
         required_params = self._get_required_params(op, request)
         if required_params - set(all_params):
+            # TODO: Provide this as context to the LLM rather than erroring
             raise ValueError(
                 f"Missing required parameters: {required_params - set(all_params)}"
             )
@@ -165,6 +168,7 @@ class OpenAPISpecHandler:
             if isinstance(schema, openapi_spec.Object):
                 for prop in schema.properties:
                     if prop.name not in request.params.arguments:
+                        # TODO: Provide this as context to the LLM rather than erroring
                         raise ValueError(
                             f"Missing required body parameter: {prop.name}"
                         )
