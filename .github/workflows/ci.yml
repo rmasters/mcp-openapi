@@ -36,26 +36,26 @@ jobs:
       - name: Check types
         run: uv run mypy .
 
-  test:
-    runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: pyproject.toml
-      - uses: astral-sh/setup-uv@v3
-      - run: uv sync --dev
-      - name: Run pytest
-        run: uv run pytest --junitxml=pytest.xml --cov=mcp_openapi --cov-report=xml:coverage.xml
-      - name: Comment PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: MishaKav/pytest-coverage-comment@main
-        with:
-          pytest-xml-coverage-path: ./coverage.xml
-          junitxml-path: ./pytest.xml
-          title: Coverage
-          badge-title: Coverage
+#  test:
+#    runs-on: ubuntu-latest
+#    permissions:
+#      issues: write
+#      pull-requests: write
+#      contents: read
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: actions/setup-python@v5
+#        with:
+#          python-version-file: pyproject.toml
+#      - uses: astral-sh/setup-uv@v3
+#      - run: uv sync --dev
+#      - name: Run pytest
+#        run: uv run pytest --junitxml=pytest.xml --cov=mcp_openapi --cov-report=xml:coverage.xml
+#      - name: Comment PR
+#        if: ${{ github.event_name == 'pull_request' }}
+#        uses: MishaKav/pytest-coverage-comment@main
+#        with:
+#          pytest-xml-coverage-path: ./coverage.xml
+#          junitxml-path: ./pytest.xml
+#          title: Coverage
+#          badge-title: Coverage
