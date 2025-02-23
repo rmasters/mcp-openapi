@@ -1,5 +1,7 @@
 # MCP-OpenAPI
 
+[![smithery badge](https://smithery.ai/badge/@rmasters/mcp-openapi)](https://smithery.ai/server/@rmasters/mcp-openapi)
+
 A [Model Context Protocol][mcp] server that exposes HTTP methods from an OpenAPI spec as tools.
 
 > [!WARNING]
@@ -30,17 +32,13 @@ An example Claude config (while running `fastapi dev tests/todos.py` with port 8
 
 The OpenAPI url can also be passed as an environment variable, `MCP_OPENAPI_URL`.
 
-When running as SSE, you can configure the server with:
+### Installing via Smithery
 
-- `--fastmcp-sse-host` - the host to serve the MCP server on
-- `--fastmcp-sse-port` - the port to serve the MCP server on
+To install MCP-OpenAPI for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@rmasters/mcp-openapi):
 
-There are additional global options:
-
-- `--fastmcp-debug` - enable debug mode for the MCP server
-- `--fastmcp-log-level` - the log level for the MCP server
-
-These can also be configured via environment variables using the `FASTMCP_` prefix, e.g. `FASTMCP_LOG_LEVEL=DEBUG`.
+```bash
+npx -y @smithery/cli install @rmasters/mcp-openapi --client claude
+```
 
 ### How it works
 
